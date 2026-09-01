@@ -7,4 +7,6 @@ class AppUrl {
   static var loginEndpoint = '$baseUrl/v1/forecast';
   // Weather Forecast Endpoint (Hourly & Daily Temperature)
   static var registeredApiEndpoints = '$baseUrl/v1/forecast';
+  static var forecastEndpoint = '$baseUrl/v1/forecast';
+
 }

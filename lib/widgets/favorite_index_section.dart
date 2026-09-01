@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/weather_model.dart';
+import 'favorite_index_edit_screen.dart';
+import 'top_right_notched_badge.dart'; // Apna path adjust kar lein
 
 class FavoriteIndexSection extends StatelessWidget {
   final WeatherModel weather;
@@ -8,44 +10,47 @@ class FavoriteIndexSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: const Color(0xFF222532),
         borderRadius: BorderRadius.circular(24),
       ),
       child: Stack(
         children: [
-          // Curved Edit Badge using Custom Clipper
+          // Reusable Notch Badge Usage
           Positioned(
             top: 0,
             right: 0,
-            child: ClipPath(
-              clipper: BadgeClipper(),
-              child: Container(
-                padding: const EdgeInsets.only(
-                  left: 20,
-                  right: 16,
-                  top: 10,
-                  bottom: 10,
-                ),
-                color: const Color(0xFF2E3244),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Edit ",
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Icon(
-                      Icons.keyboard_double_arrow_right_rounded,
+            child: TopRightNotchedBadge(
+              onTap: () async {
+                final updatedIds = await Navigator.push<List<String>>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FavoriteIndexEditScreen(),
+                  ),
+                );
+                if (updatedIds != null) {
+                  // State update call karein
+                }
+              },
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Edit",
+                    style: TextStyle(
                       color: Colors.white70,
-                      size: 14,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(width: 2),
+                  Icon(
+                    Icons.keyboard_double_arrow_right_rounded,
+                    color: Colors.white70,
+                    size: 14,
+                  ),
+                ],
               ),
             ),
           ),
@@ -66,7 +71,6 @@ class FavoriteIndexSection extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    // Rain Card
                     Expanded(
                       child: _IndexCard(
                         color: const Color(0xFF007AFF),
@@ -76,8 +80,6 @@ class FavoriteIndexSection extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 10),
-
-                    // UV Card
                     Expanded(
                       child: _IndexCard(
                         color: const Color(0xFFD32F2F),
@@ -88,8 +90,6 @@ class FavoriteIndexSection extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 10),
-
-                    // RealFeel Card
                     Expanded(
                       child: _IndexCard(
                         color: const Color(0xFF00838F),
@@ -114,32 +114,6 @@ class FavoriteIndexSection extends StatelessWidget {
     if (uvIndex >= 3) return "Moderate";
     return "Low";
   }
-}
-
-// Custom Clipper for Smooth Figma Inward Curve
-class BadgeClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-
-    // Start from top-left smooth curve
-    path.moveTo(0, 0);
-    path.quadraticBezierTo(size.width * 0.25, size.height * 0.6, 0, size.height);
-    path.lineTo(size.width - 24, size.height);
-
-    // Bottom-right corner rounding
-    path.quadraticBezierTo(size.width, size.height, size.width, size.height - 16);
-    path.lineTo(size.width, 24);
-
-    // Top-right corner rounding
-    path.quadraticBezierTo(size.width, 0, size.width - 24, 0);
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
 class _IndexCard extends StatelessWidget {

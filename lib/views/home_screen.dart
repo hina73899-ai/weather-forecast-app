@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../data/response/status.dart';
 import '../models/location_model.dart';
 import '../view_models/location_view_model.dart';
+import '../widgets/aqi.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/daily_forcast_graph_section.dart';
 import '../widgets/favorite_index_section.dart';
@@ -11,6 +12,8 @@ import '../widgets/location_search_delegate.dart';
 import '../widgets/main_temperature_section.dart';
 import '../widgets/moon_phase_section.dart';
 import '../widgets/page_indicator_section.dart';
+import '../widgets/protection.dart';
+import '../widgets/today_detail.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -63,14 +66,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Figma Curved Indicator Dots (Tap to switch screen)
+            // Figma Curved Indicator Dots
             PageIndicatorSection(
               activeIndex: _currentPage,
               totalPages: 2,
               onDotTap: _onDotTapped,
             ),
 
-            // PageView body for Horizontal Swiping
+            // PageView body with explicit Physics
             Expanded(
               child: PageView(
                 controller: _pageController,
@@ -80,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   });
                 },
                 children: [
-                  // PAGE 1: Main Weather Screen
+                  // PAGE 1: Weather Screen
                   _buildWeatherPage(),
 
                   // PAGE 2: Add Location Screen
@@ -94,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // PAGE 1: Aapka original Weather Content UI
+  // PAGE 1: Weather Content
   Widget _buildWeatherPage() {
     return Consumer<LocationViewModel>(
       builder: (context, value, child) {
@@ -112,32 +115,36 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           case Status.Complete:
             final weather = value.weatherList.data!;
-            return SingleChildScrollView(
+            return ListView(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  MainTemperatureSection(
-                    currentTemp: weather.currentTemp,
-                  ),
-                  const SizedBox(height: 20),
-                  FavoriteIndexSection(weather: weather),
-                  const SizedBox(height: 20),
-                  HourlyForecastSection(hourly: weather.hourly),
-                  const SizedBox(height: 16),
+              children: [
+                const SizedBox(height: 10),
+                MainTemperatureSection(
+                  currentTemp: weather.currentTemp,
+                ),
+                const SizedBox(height: 20),
 
-                  // DAILY GRAPH SECTION
-                  DailyForecastGraphSection(daily: weather.daily),
+                // Favorite Section Wrapped in explicit bounds
+                SizedBox(
+                  width: double.infinity,
+                  child: FavoriteIndexSection(weather: weather),
+                ),
 
-                  const SizedBox(height: 16),
-
-                  // MOON PHASE SECTION
-                  MoonPhaseSection(daily: weather.daily),
-
-                  const SizedBox(height: 30),
-                ],
-              ),
+                const SizedBox(height: 20),
+                HourlyForecastSection(hourly: weather.hourly),
+                const SizedBox(height: 16),
+                DailyForecastGraphSection(daily: weather.daily),
+                const SizedBox(height: 16),
+                const TodayDetail(),
+                const SizedBox(height: 16),
+                MoonPhaseSection(daily: weather.daily),
+                const SizedBox(height: 16),
+                const Protection(latitude: 31.5497, longitude: 74.3436),
+                const SizedBox(height: 16),
+                const AQI(),
+                const SizedBox(height: 20),
+              ],
             );
           default:
             return Container();
@@ -146,25 +153,25 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // PAGE 2: Add Location UI Screen matching Figma
+  // PAGE 2: Add Location UI
   Widget _buildAddLocationPage() {
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Column(
         children: [
           InkWell(
             borderRadius: BorderRadius.circular(16),
             onTap: () async {
-              // Open Geocoding Search Delegate
               final selectedLocation = await showSearch<LocationModel?>(
                 context: context,
                 delegate: LocationSearchDelegate(),
               );
 
               if (selectedLocation != null && mounted) {
-                final cityName = "${selectedLocation.name}, ${selectedLocation.country}";
+                final cityName =
+                    "${selectedLocation.name}, ${selectedLocation.country}";
 
-                // 1. Fetch updated weather for selected location
                 Provider.of<LocationViewModel>(context, listen: false)
                     .fetchWeatherApi(
                   cityName,
@@ -172,19 +179,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   selectedLocation.longitude,
                 );
 
-                // 2. Automatically switch back to Home Screen (Page 1)
                 _onDotTapped(0);
               }
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               decoration: BoxDecoration(
                 color: const Color(0xFF2B2E3D),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.add_circle_outline, color: Colors.white70, size: 24),
+                  Icon(Icons.add_circle_outline,
+                      color: Colors.white70, size: 24),
                   SizedBox(width: 12),
                   Text(
                     "Add location",
@@ -201,9 +209,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
-  }}
-
-// Indicator Dots Widget matching Figma Screen
+  }
+}
 
 class _FixedAppBar extends StatelessWidget {
   final String cityName;

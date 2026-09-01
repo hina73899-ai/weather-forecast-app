@@ -18,6 +18,9 @@ class AppColors {
   // Gradient Colors (Only for Drawer)
   static const Color drawerGradientStart = Color(0xFF24B0FF);
   static const Color drawerGradientEnd = Color(0xFF75A7FC);
+
+   static const drawerGradientStarttop = Color(0xFF0A1F44);
+   static const drawerGradientEndbottom = Color(0xFF14315C);
 }
 
 class AppPaddings {

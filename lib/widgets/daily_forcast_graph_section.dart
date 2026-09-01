@@ -1,14 +1,13 @@
-
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/weather_model.dart';
+import 'top_right_notched_badge.dart'; // Apni reusable file ka correct path add karein
 
 class DailyForecastGraphSection extends StatelessWidget {
   final DailyWeather daily;
-  const DailyForecastGraphSection({required this.daily});
+  const DailyForecastGraphSection({super.key, required this.daily});
 
   String _getDayName(String rawDate) {
     try {
@@ -56,241 +55,289 @@ class DailyForecastGraphSection extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 18),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: const Color(0xFF222532),
         borderRadius: BorderRadius.circular(24),
       ),
-      child: Column(
+      child: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Daily",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Row(
-                    children: [
-                      Text("Detail ", style: TextStyle(color: Colors.white54, fontSize: 13)),
-                      Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 12),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            child: SizedBox(
-              width: totalChartWidth,
-              child: Column(
+          // Top-Right Curved Badge Call
+          Positioned(
+            top: 0,
+            right: 0,
+            child: TopRightNotchedBadge(
+              onTap: () {
+                // Action for Detail tap
+              },
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    children: List.generate(count, (index) {
-                      return SizedBox(
-                        width: itemWidth,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 6),
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF323648),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                _getDayName(daily.time[index]),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                _getMonthDate(daily.time[index]),
-                                style: const TextStyle(
-                                  color: Colors.white54,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 16),
-
-                  Row(
-                    children: List.generate(count, (index) {
-                      final code = daily.weatherCode.length > index ? daily.weatherCode[index] : 0;
-                      return SizedBox(
-                        width: itemWidth,
-                        child: Icon(_getWeatherIcon(code), color: Colors.white70, size: 24),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 10),
-
-                  SizedBox(
-                    height: 130,
-                    width: totalChartWidth,
-                    child: LineChart(
-                      LineChartData(
-                        gridData: const FlGridData(show: false),
-                        titlesData: const FlTitlesData(show: false),
-                        borderData: FlBorderData(show: false),
-                        minX: 0,
-                        maxX: (count - 1).toDouble(),
-                        minY: daily.minTemp.reduce((a, b) => a < b ? a : b) - 10,
-                        maxY: daily.maxTemp.reduce((a, b) => a > b ? a : b) + 10,
-                        betweenBarsData: [
-                          BetweenBarsData(
-                            fromIndex: 0,
-                            toIndex: 1,
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.orangeAccent.withOpacity(0.4),
-                                Colors.orangeAccent.withOpacity(0.05),
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          )
-                        ],
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: maxSpots,
-                            isCurved: true,
-                            color: Colors.orangeAccent,
-                            barWidth: 2,
-                            dotData: FlDotData(
-                              show: true,
-                              getDotPainter: (spot, percent, barData, index) =>
-                                  FlDotCirclePainter(
-                                    radius: 4,
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                    strokeColor: Colors.orangeAccent,
-                                  ),
-                            ),
-                          ),
-                          LineChartBarData(
-                            spots: minSpots,
-                            isCurved: true,
-                            color: Colors.orange,
-                            barWidth: 2,
-                            dotData: FlDotData(
-                              show: true,
-                              getDotPainter: (spot, percent, barData, index) =>
-                                  FlDotCirclePainter(
-                                    radius: 4,
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                    strokeColor: Colors.orange,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
+                  Text(
+                    "Detail",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-
-                  Row(
-                    children: List.generate(count, (index) {
-                      final max = daily.maxTemp[index].round();
-                      final min = daily.minTemp[index].round();
-                      return SizedBox(
-                        width: itemWidth,
-                        child: Column(
-                          children: [
-                            Text("$max°", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 35),
-                            Text("$min°", style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                          ],
-                        ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 20),
-
-                  Row(
-                    children: List.generate(count, (index) {
-                      final rain = daily.precipitationMax.length > index ? daily.precipitationMax[index] : 0;
-                      return SizedBox(
-                        width: itemWidth,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.umbrella, color: Colors.white38, size: 12),
-                            const SizedBox(width: 2),
-                            Text("$rain%", style: const TextStyle(color: Colors.white54, fontSize: 11)),
-                          ],
-                        ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 12),
-
-                  Row(
-                    children: List.generate(count, (index) {
-                      return SizedBox(
-                        width: itemWidth,
-                        child: const Center(
-                          child: Text("0 in", style: TextStyle(color: Colors.white38, fontSize: 11)),
-                        ),
-                      );
-                    }),
+                  SizedBox(width: 2),
+                  Icon(
+                    Icons.keyboard_double_arrow_right_rounded,
+                    color: Colors.white70,
+                    size: 14,
                   ),
                 ],
               ),
             ),
           ),
 
-          const SizedBox(height: 20),
-
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00A8B5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    "Daily",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                onPressed: () {},
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Show next 30 days",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
+                const SizedBox(height: 16),
+
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: SizedBox(
+                    width: totalChartWidth,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: List.generate(count, (index) {
+                            return SizedBox(
+                              width: itemWidth,
+                              child: Container(
+                                margin:
+                                const EdgeInsets.symmetric(horizontal: 6),
+                                padding:
+                                const EdgeInsets.symmetric(vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF323648),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      _getDayName(daily.time[index]),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _getMonthDate(daily.time[index]),
+                                      style: const TextStyle(
+                                        color: Colors.white54,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(height: 16),
+
+                        Row(
+                          children: List.generate(count, (index) {
+                            final code = daily.weatherCode.length > index
+                                ? daily.weatherCode[index]
+                                : 0;
+                            return SizedBox(
+                              width: itemWidth,
+                              child: Icon(_getWeatherIcon(code),
+                                  color: Colors.white70, size: 24),
+                            );
+                          }),
+                        ),
+                        const SizedBox(height: 10),
+
+                        SizedBox(
+                          height: 130,
+                          width: totalChartWidth,
+                          child: LineChart(
+                            LineChartData(
+                              gridData: const FlGridData(show: false),
+                              titlesData: const FlTitlesData(show: false),
+                              borderData: FlBorderData(show: false),
+                              minX: 0,
+                              maxX: (count - 1).toDouble(),
+                              minY: daily.minTemp
+                                  .reduce((a, b) => a < b ? a : b) -
+                                  10,
+                              maxY: daily.maxTemp
+                                  .reduce((a, b) => a > b ? a : b) +
+                                  10,
+                              betweenBarsData: [
+                                BetweenBarsData(
+                                  fromIndex: 0,
+                                  toIndex: 1,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.orangeAccent.withOpacity(0.4),
+                                      Colors.orangeAccent.withOpacity(0.05),
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
+                                )
+                              ],
+                              lineBarsData: [
+                                LineChartBarData(
+                                  spots: maxSpots,
+                                  isCurved: true,
+                                  color: Colors.orangeAccent,
+                                  barWidth: 2,
+                                  dotData: FlDotData(
+                                    show: true,
+                                    getDotPainter: (spot, percent, barData,
+                                        index) =>
+                                        FlDotCirclePainter(
+                                          radius: 4,
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                          strokeColor: Colors.orangeAccent,
+                                        ),
+                                  ),
+                                ),
+                                LineChartBarData(
+                                  spots: minSpots,
+                                  isCurved: true,
+                                  color: Colors.orange,
+                                  barWidth: 2,
+                                  dotData: FlDotData(
+                                    show: true,
+                                    getDotPainter: (spot, percent, barData,
+                                        index) =>
+                                        FlDotCirclePainter(
+                                          radius: 4,
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                          strokeColor: Colors.orange,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        Row(
+                          children: List.generate(count, (index) {
+                            final max = daily.maxTemp[index].round();
+                            final min = daily.minTemp[index].round();
+                            return SizedBox(
+                              width: itemWidth,
+                              child: Column(
+                                children: [
+                                  Text("$max°",
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 35),
+                                  Text("$min°",
+                                      style: const TextStyle(
+                                          color: Colors.white70, fontSize: 12)),
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(height: 20),
+
+                        Row(
+                          children: List.generate(count, (index) {
+                            final rain = daily.precipitationMax.length > index
+                                ? daily.precipitationMax[index]
+                                : 0;
+                            return SizedBox(
+                              width: itemWidth,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.umbrella,
+                                      color: Colors.white38, size: 12),
+                                  const SizedBox(width: 2),
+                                  Text("$rain%",
+                                      style: const TextStyle(
+                                          color: Colors.white54, fontSize: 11)),
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(height: 12),
+
+                        Row(
+                          children: List.generate(count, (index) {
+                            return SizedBox(
+                              width: itemWidth,
+                              child: const Center(
+                                child: Text("0 in",
+                                    style: TextStyle(
+                                        color: Colors.white38, fontSize: 11)),
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF00A8B5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                      onPressed: () {},
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Show next 30 days",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(Icons.arrow_forward,
+                              color: Colors.white, size: 18),
+                        ],
                       ),
                     ),
-                    SizedBox(width: 8),
-                    Icon(Icons.arrow_forward, color: Colors.white, size: 18),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],

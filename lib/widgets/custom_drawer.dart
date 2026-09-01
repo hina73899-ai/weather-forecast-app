@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../utils/App-colors.dart';
 import '../views/home_screen.dart';
+import '../views/radar_screen.dart';
+import 'location_screen.dart';
 
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({super.key});
@@ -53,15 +55,22 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 title: "Edit locations",
                 onTap: () {
                   Navigator.pop(context);
-                  // TODO: Add navigation to Edit Locations screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LocationScreen()),
+                  );
                 },
               ),
               _buildDrawerItem(
                 icon: Icons.radar_outlined,
                 title: "Radar",
                 onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Add navigation to Radar screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RadarScreen(),
+                    ),
+                  );
                 },
               ),
 
